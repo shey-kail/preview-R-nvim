@@ -29,7 +29,7 @@ function M.preview_tab()
   -- 先通过iron.nvim插件发送命令到R中，令R把要预览的数据写入管道文件(此时R进程阻塞)
   require("iron.core").send(nil,
     string.format(
-      "write.table(%s, quote = F, sep = '\t', row.names = F, file = '%s')",
+      "write.table(%s, quote = F, sep = \"\\t\", row.names = F, file = '%s')",
       vim.fn.expand("<cword>"),
       config.pipe_file_path
     )
