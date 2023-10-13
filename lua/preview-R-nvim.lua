@@ -3,7 +3,9 @@ local M = {}
 local config = {
   pipe_file_path = "/tmp/previewer_R/pipe",
   previewer_path = "visidata",
-  preview_command_pattern = "{previewer} {data}",
+  max_row = 100,
+  preview_command_pattern = "cat {pipe_file_path} | {previewer}",
+  manual_preview_command_pattern = "cat {pipe_file_path} | {previewer}",
 }
 
 function M.setup(user_options)
@@ -12,39 +14,81 @@ end
 
 -- 通过preview_command_pattern，得到预览命令
 local preview_command = string.gsub(config.preview_command_pattern, "{previewer}", config.previewer_path)
-preview_command = string.gsub(preview_command, "{data}", config.pipe_file_path)
+preview_command = string.gsub(preview_command, "{pipe_file_path}", config.pipe_file_path)
 
 -- 检查config.pipe_file_path是否存在，不存在则创建
 local check_pipe_file = function(pipe_file_path)
   local pipe_file_dir = string.match(pipe_file_path, "(.*)/")
   vim.fn.system("mkdir -p " .. pipe_file_dir)
-  if not vim.fn.filereadable(pipe_file_path) then
-    vim.fn.system("mkfifo " .. pipe_file_path)
-  end
+  -- 如果pipe文件不存在，则创建
+  os.execute("test -p " .. pipe_file_path .. " || mkfifo " .. pipe_file_path)
 end
 
-local R_send_to_pipe = function()
+-- 令R发送数据到管道文件
+local function R_send_to_pipe(max_row)
   require("iron.core").send(nil,
     string.format(
-      "write.table(%s, quote = F, sep = \"\\t\", row.names = F, file = '%s')",
+      "write.table(head(%s, %u), quote = F, sep = \"\\t\", row.names = F, file = '%s')",
       vim.fn.expand("<cword>"),
+      max_row,
       config.pipe_file_path
     )
   )
 end
 
-function M.preview_newbuffer()
+-- 预览函数（在neovim中的一个新的buffer中预览）
+function M.preview_newbuffer(max_row)
   check_pipe_file(config.pipe_file_path)
-  R_send_to_pipe()
-  -- 新创建一个terminal的tab，执行预览命令
+  R_send_to_pipe(max_row)
   vim.cmd("terminal " .. preview_command)
 end
 
-function M.preview_tab()
+-- 预览函数（在neovim中的一个新的tab中预览）
+function M.preview_tab(max_row)
   check_pipe_file(config.pipe_file_path)
-  R_send_to_pipe()
-  -- 新创建一个terminal的tab，执行预览命令
-  vim.cmd("tabnew | terminal " .. preview_command)
+  R_send_to_pipe(max_row)
+  vim.cmd("tabnew | set nonu | set norelativenumber | set signcolumn=no | terminal " .. preview_command)
+end
+
+-- 预览函数（在neovim中的一个新的窗口中预览）
+function M.preview_split(split, positon, win_len, max_row)
+  -- 设置默认值
+  split = split or "h"
+  positon = positon or "rightbelow"
+  win_len = win_len or 40
+  max_row = max_row or config.max_row
+
+  check_pipe_file(config.pipe_file_path)
+  R_send_to_pipe(max_row)
+
+  if split == "v" then
+    local command = string.format(
+      "%s %uvsplit | set nonu | set norelativenumber | set signcolumn=no | terminal %s",
+      positon, win_len, preview_command
+    )
+    vim.cmd(command)
+  elseif split == "h" then
+    local command = string.format(
+      "%s %usplit | set nonu | set norelativenumber | set signcolumn=no | terminal %s",
+      positon, win_len, preview_command
+    )
+    vim.cmd(command)
+  else
+    error("parameter split must be h or v")
+  end
+end
+
+-- 预览函数（这个函数通常用于在一个其他窗口而非neovim中预览）
+function M.preview_manual(max_row)
+  max_row = max_row or config.max_row
+
+  check_pipe_file(config.pipe_file_path)
+  R_send_to_pipe(max_row)
+
+  local command = string.gsub(config.manual_preview_command_pattern, "{pipe_file_path}", config.pipe_file_path)
+  command = string.gsub(command, "{previewer}", config.previewer_path)
+
+  os.execute(command)
 end
 
 return M

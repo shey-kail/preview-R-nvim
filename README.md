@@ -35,26 +35,77 @@ require("lazy").setup(
   {
     'shey/preview-R-nvim',
     opts = {
+      -- the path of named pipe file
       pipe_file_path = "/tmp/previewer_R/pipe",
+      -- the path of previewer
       previewer_path = "visidata",
-      preview_command_pattern = "{previewer} {data}",
+      -- max row to show in previewer
+      max_row = 100,
+      -- the pattern of preview command
+      -- {pipe_file_path} is the path of named pipe file, {previewer} is the path of previewer
+      preview_command_pattern = "cat {pipe_file_path} | {previewer}",
+      -- the pattern of preview command in preview_manual()
+      manual_preview_command_pattern = "cat {pipe_file_path} | {previewer}",
     }
   }
 )
 ```
 
-# How to use:
+## How to use:
 
-Just run :PreviewR, neovim will open a new tab to display the previewer you specified to show the R variable under your cursor.
+You can preview R variables using the lua function provided by this plugin, as follows
 
-You can set shortcut keys for this process.
+1. preview R variable under cursor in a new buffer in neovim
+
+```lua
+require("preview-R-nvim").preview_newbuffer(max_row)
+-- params:
+-- max_row: the max row of the table-like R variable you want to preview (if not set, the default value is max_row that in configuration)
+```
+
+
+2. preview R variable under cursor in a new tab in neovim
+
+```lua
+require("preview-R-nvim").preview_tab(max_row)
+-- params:
+-- max_row: the max row of the table-like R variable you want to preview (if not set, the default value is max_row that in configuration)
+```
+
+3. preview R variable under cursor in a new window in neovim
+
+```lua
+require("preview-R-nvim").preview_split(split, positon, win_len, max_row)
+-- params:
+-- split: the split direction, can be 'v' or 'h'(default: 'v')
+-- position: the position of the new window, can be 'left', 'right', 'above', 'below', 'leftabove', 'leftbelow', 'rightabove', 'rightbelow'(default: 'rightbelow')
+-- win_len: the length of the new window(default: 40)
+-- max_row: the max row of the table-like R variable you want to preview (if not set, the default value is max_row that in configuration)
+```
+
+
+4. This function is usually used for previewing in another window other than neovim
+
+```lua
+require("preview-R-nvim").preview_manual(max_row)
+-- params:
+-- max_row: the max row of the table-like R variable you want to preview (if not set, the default value is max_row that in configuration)
+```
+
+You can set shortcut keys for these functions.
 
 for vimL:
 ```vim
-noremap <silent> <leader>pr :PreviewR<CR>
+noremap <silent> <leader>pr :lua require("preview-R-nvim").preview_tab()<CR>
 ```
 
 for lua:
 ```lua
-vim.api.nvim_set_keymap('n', '<leader>pr', ':PreviewR<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<leader>pr', require("preview-R-nvim").preview_tab(), {noremap = true, silent = true})
 ```
+
+## Todo:
+
+1. Learn from the preview csv function in [nvim-preview-csv](https://github.com/Nguyen-Hoang-Nam/nvim-preview-csv) as a native previewer
+2. Finish checkhealth
+3. Add some screenshots to readme
