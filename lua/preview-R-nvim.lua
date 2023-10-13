@@ -17,9 +17,7 @@ preview_command = string.gsub(preview_command, "{data}", config.pipe_file_path)
 -- 检查config.pipe_file_path是否存在，不存在则创建
 local check_pipe_file = function(pipe_file_path)
   local pipe_file_dir = string.match(pipe_file_path, "(.*)/")
-  if not vim.fn.isdirectory(pipe_file_dir) then
-    vim.fn.mkdir(pipe_file_dir, "p")
-  end
+  vim.fn.system("mkdir -p " .. pipe_file_dir)
   if not vim.fn.filereadable(pipe_file_path) then
     vim.fn.system("mkfifo " .. pipe_file_path)
   end
@@ -31,7 +29,7 @@ function M.preview_tab()
   -- 先通过iron.nvim插件发送命令到R中，令R把要预览的数据写入管道文件(此时R进程阻塞)
   require("iron.core").send(nil,
     string.format(
-      "write.table(%s, quote = F, sep = '\t', row.names = F, file = %s)",
+      "write.table(%s, quote = F, sep = '\t', row.names = F, file = '%s')",
       vim.fn.expand("<cword>"),
       config.pipe_file_path
     )
