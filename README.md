@@ -1,6 +1,6 @@
 # preview-R-nvim
 
-`preview-R-nvim` is a neovim plugin, used to preview table-like R variables (such as data.frame, tibble) in iron.nvim. In preview_R, you can specify any csv or tsv file/table browser that you can use comfortably as a previewer to display the R variables you want to show.
+`preview-R-nvim` is a neovim plugin, used to preview table-like R variables (such as data.frame, tibble) in iron.nvim. In preview-R-nvim, you can specify any csv or tsv file/table browser that you can use comfortably as a previewer to display the R variables you want to show.
 
 ## Why does this plugin appear
 

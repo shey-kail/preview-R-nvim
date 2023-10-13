@@ -26,6 +26,7 @@ end
 
 -- 令R发送数据到管道文件
 local function R_send_to_pipe(max_row)
+  max_row = max_row or config.max_row
   require("iron.core").send(nil,
     string.format(
       "write.table(head(%s, %u), quote = F, sep = \"\\t\", row.names = F, file = '%s')",
@@ -56,7 +57,6 @@ function M.preview_split(split, positon, win_len, max_row)
   split = split or "h"
   positon = positon or "rightbelow"
   win_len = win_len or 40
-  max_row = max_row or config.max_row
 
   check_pipe_file(config.pipe_file_path)
   R_send_to_pipe(max_row)
