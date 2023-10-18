@@ -2,7 +2,8 @@ local M = {}
 
 local config = {
   pipe_file_path = "/tmp/previewer_R/pipe",
-  previewer_path = "visidata",
+  previewer_path = "csview",
+  native_previewer = true,
   max_row = 100,
   preview_command_pattern = "cat {pipe_file_path} | {previewer}",
   manual_preview_command_pattern = "cat {pipe_file_path} | {previewer}",
@@ -41,6 +42,9 @@ end
 function M.preview_newbuffer(max_row)
   check_pipe_file(config.pipe_file_path)
   R_send_to_pipe(max_row)
+  if config.native_previewer == true then
+    require("native_previewer").preview_tsv_newbuffer(config.pipe_file_path, vim.fn.expand("<cword>"), max_row)
+  end
   vim.cmd("terminal " .. preview_command)
 end
 

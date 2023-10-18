@@ -16,13 +16,20 @@ preview-R-nvim will create a named pipe file in the path specified by `pipe_file
 
 - [iron.nvim](https://github.com/Vigemus/iron.nvim)
 - [visidata](https://www.visidata.org/)(optional, as previewer of table-like R variables)
+- csview(optional, as previewer of table-like R variables)
 
 ## Installation:
 
 [lazy.nvim](https://github.com/folke/lazy.nvim):
 ```lua
 require("lazy").setup(
-  {'shey/preview-R-nvim'}
+  {
+    'shey/preview-R-nvim'
+    ft = "r",
+    dependencies = {
+      "hkupty/iron.nvim",
+    }
+  }
 )
 ```
 
@@ -38,7 +45,7 @@ require("lazy").setup(
       -- the path of named pipe file
       pipe_file_path = "/tmp/previewer_R/pipe",
       -- the path of previewer
-      previewer_path = "visidata",
+      previewer_path = "csview"
       -- max row to show in previewer
       max_row = 100,
       -- the pattern of preview command
