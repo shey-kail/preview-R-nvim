@@ -109,7 +109,7 @@ function M.preview_tsv_newbuffer(pipe_file_path, buff_name, max_row)
   local result = get_readable_table(get_text, number_line, max_row) or {}
   local new_buf = api.nvim_create_buf(true, true)
   api.nvim_buf_set_name(new_buf, 'Preview ' .. buff_name)
-  vim.bo[new_buf].wrap = false
+  --vim.wo.wrap = false
   api.nvim_set_current_buf(new_buf)
   api.nvim_buf_set_lines(new_buf, 0, number_line, false, result)
 end
