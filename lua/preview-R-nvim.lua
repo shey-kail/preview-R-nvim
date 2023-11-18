@@ -44,8 +44,9 @@ function M.preview_newbuffer(max_row)
   R_send_to_pipe(max_row)
   if config.native_previewer == true then
     require("native_previewer").preview_tsv_newbuffer(config.pipe_file_path, vim.fn.expand("<cword>"), max_row)
+  else
+    vim.cmd("terminal " .. preview_command)
   end
-  vim.cmd("terminal " .. preview_command)
 end
 
 -- 预览函数（在neovim中的一个新的tab中预览）
