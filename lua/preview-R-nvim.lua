@@ -27,11 +27,24 @@ end
 
 -- 令R发送数据到管道文件
 local function R_send_to_pipe(max_row)
+  -- 根据模式获取变量
+  local variable
+  if vim.api.nvim_get_mode().mode == 'v' then
+    -- 如果是可视模式，则获取选中内容
+    variable = require("util").get_selection()
+  elseif vim.api.nvim_get_mode().mode == 'n' then
+    -- 如果是普通模式，则获取光标所在的变量
+    variable = vim.fn.expand("<cword>")
+  else
+    -- 不然就报错
+    error('Not in visual mode or normal mode!')
+  end
+
   max_row = max_row or config.max_row
   require("iron.core").send(nil,
     string.format(
       "write.table(head(%s, %u), quote = F, sep = \"\\t\", row.names = F, file = '%s')",
-      vim.fn.expand("<cword>"),
+      variable,
       max_row,
       config.pipe_file_path
     )
@@ -40,10 +53,23 @@ end
 
 -- 预览函数（在neovim中的一个新的buffer中预览）
 function M.preview_newbuffer(max_row)
+  -- 根据模式获取变量
+  local variable
+  if vim.api.nvim_get_mode().mode == 'v' then
+    -- 如果是可视模式，则获取选中内容
+    variable = require("util").get_selection()
+  elseif vim.api.nvim_get_mode().mode == 'n' then
+    -- 如果是普通模式，则获取光标所在的变量
+    variable = vim.fn.expand("<cword>")
+  else
+    -- 不然就报错
+    error('Not in visual mode or normal mode!')
+  end
+
   check_pipe_file(config.pipe_file_path)
   R_send_to_pipe(max_row)
   if config.native_previewer == true then
-    require("native_previewer").preview_tsv_newbuffer(config.pipe_file_path, vim.fn.expand("<cword>"), max_row)
+    require("native_previewer").preview_tsv_newbuffer(config.pipe_file_path, variable, max_row)
   else
     vim.cmd("terminal " .. preview_command)
   end

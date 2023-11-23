@@ -24,11 +24,19 @@ preview-R-nvim will create a named pipe file in the path specified by `pipe_file
 ```lua
 require("lazy").setup(
   {
-    'shey/preview-R-nvim'
+    "shey-kail/preview-R-nvim",
     ft = "r",
     dependencies = {
       "hkupty/iron.nvim",
-    }
+    },
+    keys = {
+      {
+        "<leader>pr",
+        mode = { "n", "v" },
+        function() require('preview-R-nvim').preview_newbuffer(10) end,
+        desc = "preview variable in new buffer"
+      },
+    },
   }
 )
 ```
@@ -53,6 +61,8 @@ require("lazy").setup(
       preview_command_pattern = "cat {pipe_file_path} | {previewer}",
       -- the pattern of preview command in preview_manual()
       manual_preview_command_pattern = "cat {pipe_file_path} | {previewer}",
+      -- whether use native previewer based on lua(copied from [nvim-preview-csv](https://github.com/Nguyen-Hoang-Nam/nvim-preview-csv))
+      native_previewer = true,
     }
   }
 )
@@ -113,6 +123,12 @@ vim.api.nvim_set_keymap('n', '<leader>pr', require("preview-R-nvim").preview_tab
 
 ## Todo:
 
-1. Learn from the preview csv function in [nvim-preview-csv](https://github.com/Nguyen-Hoang-Nam/nvim-preview-csv) as a native previewer
+~~1. Learn from the preview csv function in [nvim-preview-csv](https://github.com/Nguyen-Hoang-Nam/nvim-preview-csv) as a native previewer~~
 2. Finish checkhealth
 3. Add some screenshots to readme
+
+## Acknowledgement:
+
+1. [nvim-preview-csv](https://github.com/Nguyen-Hoang-Nam/nvim-preview-csv)
+2. [Nvim-R](https://github.com/jalvesaq/Nvim-R)
+3. [iron.nvim](https://github.com/Vigemus/iron.nvim)
